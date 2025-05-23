@@ -9,17 +9,20 @@ const favoriteRoutes = require('./routes/favorites');
 
 const app = express();
 
-// ✅ CORS 설정 – Vercel 프론트 주소 포함
+// ✅ CORS 설정 – 동적 Origin 허용 (Preview URL 대응)
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:5177',
-    'https://mycar360.vercel.app',
-    'https://mycar360-frontend-jx8b9l6t2-kimrahuis-projects.vercel.app',
-    'https://mycar360-frontend-bko895jlq-kimrahuis-projects.vercel.app',
-    'https://mycar360-frontend-7f3l3p7h6-kimrahuis-projects.vercel.app',
-    'https://mycar360-frontend.vercel.app'
-  ],
+  origin: function (origin, callback) {
+    const allowlist = [
+      'http://localhost:5173',
+      'http://localhost:5177',
+      'https://mycar360.vercel.app'
+    ];
+    if (!origin || allowlist.includes(origin) || origin.includes('mycar360-frontend')) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS 차단됨: ' + origin));
+    }
+  },
   credentials: true
 }));
 
