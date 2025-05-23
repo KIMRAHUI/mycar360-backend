@@ -10,7 +10,7 @@ router.get('/:carNumber', async (req, res) => {
     .from('vehicle_info')
     .select('*')
     .eq('car_number', carNumber)
-    .single();
+    .maybeSingle();
 
   if (error) {
     console.error('❌ 차량 조회 오류:', error.message);
