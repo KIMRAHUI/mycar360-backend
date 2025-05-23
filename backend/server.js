@@ -17,7 +17,8 @@ app.use(cors({
     'https://mycar360.vercel.app',
     'https://mycar360-frontend-jx8b9l6t2-kimrahuis-projects.vercel.app',
     'https://mycar360-frontend-bko895jlq-kimrahuis-projects.vercel.app',
-    'https://mycar360-frontend-7f3l3p7h6-kimrahuis-projects.vercel.app'
+    'https://mycar360-frontend-7f3l3p7h6-kimrahuis-projects.vercel.app',
+    'https://mycar360-frontend.vercel.app'
   ],
   credentials: true
 }));
