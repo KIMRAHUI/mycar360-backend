@@ -9,8 +9,15 @@ router.get('/:userId', async (req, res) => {
 
   const { data, error } = await supabase
     .from('favorites')
-    .insert([{ user_id, inspection_item_id }]);
-    
+    .select(`
+      inspection_item_id,
+      inspection_items (
+        title,
+        category,
+        description
+      )
+    `)
+    .eq('user_id', userId);
 
   if (error) {
     console.error('찜 목록 조회 실패:', error.message);
