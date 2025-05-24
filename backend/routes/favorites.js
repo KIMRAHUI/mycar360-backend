@@ -1,9 +1,8 @@
-// routes/favorites.js
 const express = require('express');
 const router = express.Router();
 const supabase = require('../supabaseClient');
 
-// ✅ 로그인한 사용자의 찜 목록 조회
+// 로그인한 사용자의 찜 목록 조회
 router.get('/:userId', async (req, res) => {
   const { userId } = req.params;
 
@@ -38,7 +37,7 @@ router.get('/:userId', async (req, res) => {
   res.json(items);
 });
 
-// ✅ 찜 추가
+// 찜 추가
 router.post('/', async (req, res) => {
   const { user_id, inspection_item_id } = req.body;
 
@@ -70,7 +69,7 @@ router.post('/', async (req, res) => {
   res.status(201).json(data[0]);
 });
 
-// ✅ 찜 해제
+// 찜 해제
 router.delete('/:itemId', async (req, res) => {
   const { itemId } = req.params;
   const { user_id } = req.query;
