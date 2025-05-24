@@ -21,9 +21,12 @@ router.get('/:userId', async (req, res) => {
     return res.status(500).json({ message: '찜 항목을 불러오는 데 실패했습니다.', error: favError });
   }
 
-  const itemIds = favorites.map(f => f.inspection_item_id);
+  // ✅ 안정성 보완: 숫자 타입만 필터링
+  const itemIds = favorites
+    .map(f => f.inspection_item_id)
+    .filter(id => typeof id === 'number' && !isNaN(id));
 
-  if (itemIds.length === 0) {
+  if (!itemIds.length) {
     return res.json([]);
   }
 
@@ -100,3 +103,4 @@ router.delete('/:itemId', async (req, res) => {
 });
 
 module.exports = router;
+//
