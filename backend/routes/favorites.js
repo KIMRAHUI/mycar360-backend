@@ -9,14 +9,7 @@ router.get('/:userId', async (req, res) => {
 
   const { data, error } = await supabase
     .from('favorites')
-    .select(`
-      inspection_item_id,
-      inspection_items (
-        title,
-        category,
-        description
-      )
-    `)
+    .select('inspection_item_id, inspection_items(title, category, description)')
     .eq('user_id', userId);
 
   if (error) {
@@ -45,7 +38,7 @@ router.post('/', async (req, res) => {
     .eq('user_id', user_id)
     .eq('inspection_item_id', inspection_item_id);
 
-  if (existing.length > 0) {
+  if (existing && existing.length > 0) {
     return res.status(409).json({ message: '이미 찜한 항목입니다.' });
   }
 
@@ -63,7 +56,7 @@ router.post('/', async (req, res) => {
 });
 
 // 찜 해제
-// DELETE /api/favorites/:itemId?user_id=123
+// DELETE /api/favorites/:itemId?user_id=xxx
 router.delete('/:itemId', async (req, res) => {
   const { itemId } = req.params;
   const { user_id } = req.query;
