@@ -1,0 +1,123 @@
+.location-page {
+  padding: 4rem 1.5rem;
+  background-color: #111;
+  color: #eee;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Pretendard', sans-serif;
+  min-height: 100vh;
+}
+
+/* 제목 + 버튼 한 줄 정렬 */
+.location-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 960px;
+  margin: 0 auto 2rem;
+  padding: 0 1rem;
+}
+
+.location-header h2 {
+  font-size: 2rem;
+  color: #e63946;
+  margin: 0;
+}
+
+/* 버튼 전용 스타일 */
+.search-bar {
+  display: flex;
+}
+
+.search-bar button {
+  background-color: #e63946;
+  border: none;
+  color: white;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.search-bar button:hover {
+  background-color: #c82333;
+}
+
+/* 지도 영역 */
+.map-wrapper {
+  width: 100%;
+  max-width: 960px;
+  height: 450px;
+  margin: 0 auto 2rem;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 12px rgba(230, 57, 70, 0.3);
+}
+
+.leaflet-map {
+  width: 100%;
+  height: 100%;
+}
+
+/* 마커 팝업 스타일 */
+.leaflet-popup-content-wrapper {
+  background-color: #1a1a1a;
+  color: #eee;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(255, 100, 100, 0.3);
+  font-size: 0.95rem;
+  padding: 1rem;
+}
+
+.leaflet-popup-content strong {
+  color: #e63946;
+  font-size: 1.05rem;
+}
+
+/* 호텔 위치 설명 카드 */
+.location-info {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  background-color: #1a1a1a;
+  border-left: 4px solid #e63946;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(255, 100, 100, 0.2);
+}
+
+.location-info h3 {
+  color: #e63946;
+  margin-bottom: 0.8rem;
+}
+
+.location-info p {
+  margin-bottom: 0.5rem;
+  color: #ccc;
+  line-height: 1.6;
+}
+
+/* 반응형 처리 */
+@media (max-width: 768px) {
+  .location-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .location-header h2 {
+    font-size: 1.6rem;
+  }
+
+  .map-wrapper {
+    height: 360px;
+  }
+
+  .location-info p {
+    font-size: 0.95rem;
+  }
+
+  .search-bar button {
+    padding: 0.5rem 0.9rem;
+    font-size: 0.9rem;
+  }
+}

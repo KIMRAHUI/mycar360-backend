@@ -1,0 +1,74 @@
+.room-card {
+  background-color: #111;
+  color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+  max-width: 300px;
+
+  /* 가운데 정렬 추가 */
+  align-items: center;
+  text-align: center;
+}
+
+.room-card:hover {
+  transform: scale(1.02);
+}
+
+.room-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+}
+
+.room-info {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+
+  /* 가운데 정렬 추가 */
+  align-items: center;
+  text-align: center;
+}
+
+.room-info h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+}
+
+.desc {
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+  white-space: pre-line; /* \n 줄바꿈 처리 */
+}
+
+.price {
+  color: #e63946;
+  font-weight: bold;
+  margin-bottom: 0.75rem;
+}
+
+.book-button {
+  background: transparent;
+  border: 2px solid #e63946;
+  color: white;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+
+  /* 버튼도 가운데 정렬 */
+  align-self: center;
+}
+
+.book-button:hover {
+  background-color: #e63946;
+  color: black;
+}

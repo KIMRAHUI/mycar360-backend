@@ -1,0 +1,119 @@
+.facility-detail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4rem 1.5rem;
+  background-color: #0d0d0d;
+  color: #eee;
+  font-family: 'Pretendard', sans-serif;
+  min-height: 100vh;
+  text-align: center;
+}
+
+/* 이미지 + 버튼 감싸는 래퍼 */
+.image-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+}
+
+.detail-image {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(255, 0, 0, 0.2);
+  margin-bottom: 2rem;
+}
+
+/* ← 목록으로 버튼 (우측 상단 고정) */
+.back-top-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #e63946;
+  border: 1px solid #e63946;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+}
+
+.back-top-btn:hover {
+  background-color: #e63946;
+  color: #fff;
+}
+
+/* 상세 설명 */
+.detail-content {
+  max-width: 720px;
+}
+
+.detail-content h2 {
+  font-size: 2rem;
+  color: #e63946;
+  margin-bottom: 1rem;
+}
+
+.detail-content p {
+  font-size: 1.05rem;
+  color: #ccc;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+
+/* 예약 안내 (비활성 버튼 대신 텍스트) */
+.reservation-info {
+  background-color: #1a1a1a;
+  color: #bbb;
+  border: 1px dashed #555;
+  padding: 0.7rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  display: inline-block;
+}
+
+.pay-btn {
+  background-color: #e63946;
+  color: white;
+  padding: 0.8rem 1.6rem;
+  font-size: 1.05rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-bottom: 1rem;
+}
+
+.pay-btn:hover {
+  background-color: #c82333;
+}
+
+@media (max-width: 768px) {
+  .facility-detail {
+    padding: 3rem 1rem;
+  }
+
+  .back-top-btn {
+    top: 0.8rem;
+    right: 0.8rem;
+    font-size: 0.75rem;
+    padding: 0.35rem 0.7rem;
+  }
+
+  .detail-content h2 {
+    font-size: 1.4rem;
+  }
+
+  .detail-content p {
+    font-size: 0.95rem;
+  }
+
+  .reservation-info,
+  .pay-btn {
+    font-size: 0.95rem;
+    padding: 0.6rem 1.2rem;
+  }
+}
