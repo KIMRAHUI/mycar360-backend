@@ -8,7 +8,7 @@ const vehicleRouter = require('./routes/vehicle');
 const inspectionRoutes = require('./routes/inspection');
 const favoriteRoutes = require('./routes/favorites');
 const nextInspectionRoutes = require('./routes/nextInspections');
-const authRoutes = require('./routes/auth'); // 추가
+const authRoutes = require('./routes/auth'); 
 
 const app = express();
 
@@ -32,7 +32,7 @@ app.use(cors({
 app.use(express.json());
 
 //  라우터 등록
-app.use('/api/auth', authRoutes); // 추가
+app.use('/api/auth', authRoutes); 
 
 app.use('/api/favorites', favoriteRoutes);
 app.use('/api/history', historyRoutes);
