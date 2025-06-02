@@ -12,7 +12,7 @@ router.get('/:userId', async (req, res) => {
 
   const { data: favorites, error: favError } = await supabase
     .from('favorites')
-    .select('inspection_item_id')
+    .select('inspection_item_id, created_at') // created_at도 같이 가져오기
     .eq('user_id', Number(userId));
 
   if (favError) {
@@ -20,7 +20,7 @@ router.get('/:userId', async (req, res) => {
     return res.status(500).json({ message: '찜 항목을 불러오는 데 실패했습니다.', error: favError });
   }
 
-  // 안정성 보완: 숫자 타입만 필터링
+  // 숫자 타입만 필터링
   const itemIds = favorites
     .map(f => f.inspection_item_id)
     .filter(id => typeof id === 'number' && !isNaN(id));
@@ -100,32 +100,6 @@ router.post('/', async (req, res) => {
   }
 
   res.status(201).json(data[0]);
-});
-
-// 찜 해제
-router.delete('/:itemId', async (req, res) => {
-  const { itemId } = req.params;
-  const { user_id } = req.query;
-
-  const itemIdNum = Number(itemId);
-  const userIdNum = Number(user_id);
-
-  if (isNaN(itemIdNum) || isNaN(userIdNum)) {
-    return res.status(400).json({ message: '유효하지 않은 user_id 또는 itemId입니다.' });
-  }
-
-  const { error } = await supabase
-    .from('favorites')
-    .delete()
-    .eq('user_id', userIdNum)
-    .eq('inspection_item_id', itemIdNum);
-
-  if (error) {
-    console.error('찜 삭제 실패:', error.message);
-    return res.status(500).json({ message: '찜 삭제에 실패했습니다.', error });
-  }
-
-  res.sendStatus(204);
 });
 
 module.exports = router;
