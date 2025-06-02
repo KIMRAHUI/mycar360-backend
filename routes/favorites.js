@@ -1,4 +1,3 @@
-
 const express = require('express');
 const router = express.Router();
 const supabase = require('../supabaseClient');
@@ -21,7 +20,7 @@ router.get('/:userId', async (req, res) => {
     return res.status(500).json({ message: '찜 항목을 불러오는 데 실패했습니다.', error: favError });
   }
 
-  //안정성 보완: 숫자 타입만 필터링
+  // 안정성 보완: 숫자 타입만 필터링
   const itemIds = favorites
     .map(f => f.inspection_item_id)
     .filter(id => typeof id === 'number' && !isNaN(id));
@@ -43,7 +42,7 @@ router.get('/:userId', async (req, res) => {
   res.json(items);
 });
 
-//찜 추가
+// 찜 추가 (user_id, inspection_item_id 존재 여부 검증 포함)
 router.post('/', async (req, res) => {
   const { user_id, inspection_item_id } = req.body;
 
@@ -51,6 +50,29 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ message: 'user_id 또는 inspection_item_id가 누락되었습니다.' });
   }
 
+  // user_id 존재 확인
+  const { data: userExists, error: userError } = await supabase
+    .from('users')
+    .select('id')
+    .eq('id', Number(user_id))
+    .single();
+
+  if (userError || !userExists) {
+    return res.status(400).json({ message: '유효하지 않은 user_id 입니다.', error: userError });
+  }
+
+  // inspection_item_id 존재 확인
+  const { data: itemExists, error: itemError } = await supabase
+    .from('inspection_items')
+    .select('id')
+    .eq('id', Number(inspection_item_id))
+    .single();
+
+  if (itemError || !itemExists) {
+    return res.status(400).json({ message: '유효하지 않은 inspection_item_id 입니다.', error: itemError });
+  }
+
+  // 중복 찜 확인
   const { data: existing, error: existError } = await supabase
     .from('favorites')
     .select('id')
@@ -66,6 +88,7 @@ router.post('/', async (req, res) => {
     return res.status(409).json({ message: '이미 찜한 항목입니다.' });
   }
 
+  // 찜 추가
   const { data, error } = await supabase
     .from('favorites')
     .insert([{ user_id: Number(user_id), inspection_item_id: Number(inspection_item_id) }])
@@ -79,7 +102,7 @@ router.post('/', async (req, res) => {
   res.status(201).json(data[0]);
 });
 
-//찜 해제
+// 찜 해제
 router.delete('/:itemId', async (req, res) => {
   const { itemId } = req.params;
   const { user_id } = req.query;
