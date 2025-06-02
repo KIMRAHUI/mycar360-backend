@@ -5,6 +5,11 @@ const supabase = require('../supabaseClient');
 const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+//테스트 라우트
+router.get('/test', (req, res) => {
+  res.send('✅ /api/auth 라우트 정상 작동 중');
+});
+
 
 // 메모리 임시 저장소 (실제론 Redis 등 사용 권장)
 const authCodes = new Map(); // { phone_number: code }
