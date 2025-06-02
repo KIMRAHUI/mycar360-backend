@@ -4,6 +4,9 @@ const router = express.Router();
 const supabase = require('../supabaseClient');
 const jwt = require('jsonwebtoken');
 
+console.log('✅ auth.js 라우트 파일 불러와짐');
+
+
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 //테스트 라우트
 router.get('/test', (req, res) => {
