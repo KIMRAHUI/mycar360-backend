@@ -11,7 +11,7 @@ router.get('/:carNumber', async (req, res) => {
     const { data, error } = await supabase
       .from('vehicle_info')
       .select('*')
-      .eq('car_number', carNumber)
+      .eq('car_number', carNumber.trim())
       .maybeSingle();
 
     if (error) {
