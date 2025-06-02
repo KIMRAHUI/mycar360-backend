@@ -45,6 +45,10 @@ app.get('/test', (req, res) => {
   res.send('✅ 서버 연결 정상 작동 중!');
 });
 
+app.get('/ping', (req, res) => {
+  res.send('pong');
+});
+
 //  서버 시작
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
@@ -52,3 +56,5 @@ app.listen(PORT, () => {
 });
 
 module.exports = app;
+
+
