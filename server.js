@@ -15,8 +15,23 @@ const userByCarRoutes = require('./routes/userByCar');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-//  미들웨어 설정
-app.use(cors());
+//  CORS 설정 (credentials 허용 + origin 정확히 지정)
+const allowedOrigins = [
+  'http://localhost:5177',
+  'https://mycar360.vercel.app'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS 차단: ' + origin));
+    }
+  },
+  credentials: true
+}));
+
 app.use(express.json());
 
 //  라우트 등록
@@ -29,7 +44,7 @@ app.use('/api/next-inspection', nextInspectionRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/user-by-car', userByCarRoutes);
 
-//  기본 테스트 라우트
+// 기본 루트 확인용
 app.get('/', (req, res) => {
   res.send('🚀 MyCar360 백엔드 서버가 정상 작동 중입니다!');
 });
