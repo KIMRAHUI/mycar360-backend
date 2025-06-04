@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 3000;
 //  CORS 설정 (credentials 허용 + origin 정확히 지정)
 const allowedOrigins = [
   'http://localhost:5177',
-  'https://mycar360.vercel.app'
+  'https://mycar360-frontend.vercel.app'
 ];
 
 app.use(cors({
