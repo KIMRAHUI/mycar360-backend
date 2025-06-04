@@ -24,22 +24,16 @@ router.post('/signup', async (req, res) => {
     return res.status(400).json({ message: '핸드폰 번호가 필요합니다.' });
   }
 
-  // 인증번호 생성
   const code = Math.floor(100000 + Math.random() * 900000).toString();
   console.log(`📨 [개발용] 인증번호 [${code}] → ${phone_number}`);
 
-  // 메모리에 저장 (5분간 유효)
   authCodes.set(phone_number, code);
   setTimeout(() => {
     authCodes.delete(phone_number);
     console.log(`🕒 인증번호 만료 처리 완료: ${phone_number}`);
   }, 5 * 60 * 1000);
 
-  // 프론트에서 alert로 보여줄 수 있도록 code 포함 응답
-  res.json({
-    message: '인증번호가 발송되었습니다. (개발용)',
-    code,
-  });
+  res.json({ message: '인증번호가 발송되었습니다. (개발용)', code });
 });
 
 // 2) 인증번호 확인 및 회원가입 or 로그인
@@ -81,6 +75,38 @@ router.post('/verify', async (req, res) => {
         return res.status(400).json({ message: '차량번호와 닉네임이 필요합니다.' });
       }
 
+      // ✅ vehicle_info에 차량 정보 있는지 확인
+      const { data: vehicleExists, error: vehicleCheckErr } = await supabase
+        .from('vehicle_info')
+        .select('*')
+        .eq('car_number', car_number);
+
+      if (vehicleCheckErr) {
+        return res.status(500).json({ message: '차량 정보 확인 실패', error: vehicleCheckErr });
+      }
+
+      // ✅ 차량 정보 없으면 기본값으로 등록
+      if (!vehicleExists || vehicleExists.length === 0) {
+        const { error: insertVehicleErr } = await supabase
+          .from('vehicle_info')
+          .insert([
+            {
+              car_number,
+              type: '미등록 차량',
+              year: '2025',
+              parts: '[]',
+              history: '[]',
+            },
+          ]);
+
+        if (insertVehicleErr) {
+          return res.status(500).json({ message: '차량 정보 등록 실패', error: insertVehicleErr });
+        }
+
+        console.log(`🆕 차량 정보 등록 완료: ${car_number}`);
+      }
+
+      // ✅ users 테이블에 사용자 등록
       const { data, error: insertErr } = await supabase
         .from('users')
         .insert([{ car_number, nickname, phone_number, address, verified: true }])
