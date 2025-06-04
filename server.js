@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const historyRoutes = require('./routes/history');
 const vehicleRouter = require('./routes/vehicle');
 const inspectionRoutes = require('./routes/inspection');
