@@ -38,7 +38,7 @@ router.post('/signup', async (req, res) => {
 
 // 2) 인증번호 확인 및 회원가입 or 로그인
 router.post('/verify', async (req, res) => {
-  const { phone_number, code, nickname, car_number, address } = req.body;
+  const { phone_number, code, nickname, car_number, address, telco } = req.body;
   console.log('[POST /verify] 요청 본문:', req.body);
 
   if (!phone_number || !code) {
@@ -108,7 +108,7 @@ router.post('/verify', async (req, res) => {
       // ✅ users 테이블에 사용자 등록
       const { data, error: insertErr } = await supabase
         .from('users')
-        .insert([{ car_number, nickname, phone_number, address,telco,verified: true }])
+        .insert([{ car_number, nickname, phone_number, address, telco, verified: true }])
         .select();
 
       if (insertErr) {
