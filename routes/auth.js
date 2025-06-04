@@ -7,15 +7,12 @@ console.log('✅ auth.js 라우트 파일 불러와짐');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
-// 테스트 라우트
 router.get('/test', (req, res) => {
   res.send('✅ /api/auth 라우트 정상 작동 중');
 });
 
-// 인증번호 저장소 (메모리 기반)
 const authCodes = new Map();
 
-// 1) 인증번호 발송
 router.post('/signup', async (req, res) => {
   const { phone_number } = req.body;
   console.log('[POST /signup] 요청 본문:', req.body);
@@ -36,15 +33,18 @@ router.post('/signup', async (req, res) => {
   res.json({ message: '인증번호가 발송되었습니다. (개발용)', code });
 });
 
-// 2) 인증번호 확인 + 회원가입/로그인
 router.post('/verify', async (req, res) => {
-  const { phone_number, code, nickname, car_number, address, telco } = req.body;
+  const {
+    phone_number,
+    code,
+    nickname,
+    car_number,
+    address,
+    telco,
+    vehicle_type, // ✅ 추가
+  } = req.body;
+
   console.log('[POST /verify] 요청 본문:', req.body);
-
-  if (!phone_number || !code) {
-    return res.status(400).json({ message: '전화번호와 인증번호가 필요합니다.' });
-  }
-
   const savedCode = authCodes.get(phone_number);
   console.log('✔️ 저장된 인증번호:', savedCode, '/ 입력한 코드:', code);
 
@@ -78,7 +78,6 @@ router.post('/verify', async (req, res) => {
         return res.status(400).json({ message: '차량번호와 닉네임이 필요합니다.' });
       }
 
-      // 차량 등록 여부 확인
       const { data: vehicleExists, error: vehicleCheckErr } = await supabase
         .from('vehicle_info')
         .select('*')
@@ -106,17 +105,22 @@ router.post('/verify', async (req, res) => {
         console.log(`🆕 차량 정보 등록 완료: ${car_number}`);
       }
 
-      // ✅ 사용자 등록
       console.log('📦 사용자 등록 시도 중:');
-      console.log({ car_number, nickname, phone_number, address, telco });
-
-      if (!telco) {
-        console.warn('⚠️ telco 값이 정의되지 않음!');
-      }
+      console.log({ car_number, nickname, phone_number, address, telco, vehicle_type });
 
       const { data, error: insertErr } = await supabase
         .from('users')
-        .insert([{ car_number, nickname, phone_number, address, telco, verified: true }])
+        .insert([
+          {
+            car_number,
+            nickname,
+            phone_number,
+            address,
+            telco,
+            vehicle_type, // ✅ Supabase에 저장
+            verified: true,
+          },
+        ])
         .select();
 
       if (insertErr) {
@@ -149,7 +153,6 @@ router.post('/verify', async (req, res) => {
   }
 });
 
-// 3) 토큰으로 사용자 조회
 router.get('/profile', async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -183,7 +186,6 @@ router.get('/profile', async (req, res) => {
   }
 });
 
-// 차량번호로 사용자 조회
 router.get('/user-by-car/:carNumber', async (req, res) => {
   const { carNumber } = req.params;
 
