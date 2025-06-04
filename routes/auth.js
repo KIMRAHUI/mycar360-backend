@@ -93,7 +93,7 @@ router.post('/verify', async (req, res) => {
           .insert([
             {
               car_number,
-              type: '미등록 차량',
+              type: vehicle_type || '미등록 차량',
               year: '2025',
               parts: '[]',
               history: '[]',
