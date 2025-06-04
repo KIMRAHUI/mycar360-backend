@@ -108,7 +108,7 @@ router.post('/verify', async (req, res) => {
       // ✅ users 테이블에 사용자 등록
       const { data, error: insertErr } = await supabase
         .from('users')
-        .insert([{ car_number, nickname, phone_number, address, verified: true }])
+        .insert([{ car_number, nickname, phone_number, address,telco,verified: true }])
         .select();
 
       if (insertErr) {
