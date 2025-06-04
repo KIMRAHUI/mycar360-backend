@@ -19,14 +19,15 @@ const allowedOrigins = [
   'https://mycar360-frontend.vercel.app'
 ];
 
-// CORS 옵션 요청 사전 처리
-app.options('*', cors({
-  origin: allowedOrigins,
-  credentials: true
-}));
-
+// ✅ CORS 설정 (함수 방식으로 정확히 설정)
 app.use(cors({
-  origin: allowedOrigins,
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS 차단: ' + origin));
+    }
+  },
   credentials: true
 }));
 
