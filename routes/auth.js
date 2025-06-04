@@ -69,7 +69,6 @@ router.post('/verify', async (req, res) => {
 
     let user = users.length > 0 ? users[0] : null;
 
-    // 신규 회원 가입
     if (!user) {
       if (!car_number || !nickname) {
         return res.status(400).json({ message: '차량번호와 닉네임이 필요합니다.' });
@@ -172,6 +171,27 @@ router.get('/profile', async (req, res) => {
   } catch (err) {
     return res.status(401).json({ message: '유효하지 않은 토큰입니다.', error: err.message });
   }
+});
+
+// ✅ 차량번호로 사용자 정보 조회
+router.get('/user-by-car/:carNumber', async (req, res) => {
+  const { carNumber } = req.params;
+
+  const { data, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('car_number', carNumber);
+
+  if (error) {
+    console.error('❌ 차량번호로 사용자 조회 실패:', error);
+    return res.status(500).json({ message: 'DB 오류', error });
+  }
+
+  if (!data || data.length === 0) {
+    return res.status(404).json({ message: '해당 차량의 사용자 정보 없음' });
+  }
+
+  res.json(data[0]);
 });
 
 module.exports = router;
