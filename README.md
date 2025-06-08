@@ -115,8 +115,9 @@ backend/
 
 ## 🧾 데이터베이스 초기화 SQL
 
-- [`supabase_schema.sql`](./supabase_schema.sql): Supabase 전용 PostgreSQL 스키마
-- [`mysql_schema.sql`](./mysql_schema.sql): 로컬 MySQL/MariaDB 전용 스키마
+- [`sqld/supabase.sql`](./sqld/supabase.sql): Supabase 전용 PostgreSQL 스키마, Supabase(PostgreSQL)에서 사용되는 테이블 및 초기 데이터 정의
+- [`sqld/mysql.sql`](./sqld/mysql.sql): 로컬 MySQL/MariaDB 전용 스키마
+
 
 
 
