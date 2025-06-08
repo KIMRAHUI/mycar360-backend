@@ -113,15 +113,10 @@ backend/
 
 ---
 
-## 📝 참고 SQL 파일 (mycar360.sql)
+## 🧾 데이터베이스 초기화 SQL
 
-Supabase 테이블 및 더미 데이터 구조는 백엔드 루트의 `mycar360.sql` 파일에 포함되어 있습니다.  
-아래는 예시입니다:
+- [`supabase_schema.sql`](./supabase_schema.sql): Supabase 전용 PostgreSQL 스키마
+- [`mysql_schema.sql`](./mysql_schema.sql): 로컬 MySQL/MariaDB 전용 스키마
 
-```sql
-CREATE TABLE users (
-  id uuid PRIMARY KEY,
-  car_number TEXT,
-  nickname TEXT,
-  address TEXT
-);
+
+
