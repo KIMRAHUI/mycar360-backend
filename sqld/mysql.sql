@@ -118,3 +118,33 @@ INSERT INTO favorites (user_id, inspection_item_id) VALUES
 (1, 3),
 (1, 4),
 (1, 5);
+
+-- 🔧 inspection_items 테이블에 images 컬럼 추가 (MySQL은 JSON 사용)
+ALTER TABLE inspection_items ADD COLUMN images JSON;
+
+-- 🔁 각 점검 항목별 이미지 경로 업데이트
+UPDATE inspection_items SET images = JSON_ARRAY("/images/inspection/1.jpg", "/images/inspection/1-1.jpg") WHERE id = 1;
+UPDATE inspection_items SET images = JSON_ARRAY("/images/inspection/2.jpg", "/images/inspection/2-1.jpg") WHERE id = 2;
+UPDATE inspection_items SET images = JSON_ARRAY("/images/inspection/3.jpg", "/images/inspection/3-1.jpg") WHERE id = 3;
+UPDATE inspection_items SET images = JSON_ARRAY("/images/inspection/4.jpg", "/images/inspection/4-1.jpg") WHERE id = 4;
+UPDATE inspection_items SET images = JSON_ARRAY("/images/inspection/5.jpg", "/images/inspection/5-1.jpg") WHERE id = 5;
+UPDATE inspection_items SET images = JSON_ARRAY("/images/inspection/6.jpg", "/images/inspection/6-1.jpg") WHERE id = 6;
+UPDATE inspection_items SET images = JSON_ARRAY("/images/inspection/8.jpg", "/images/inspection/8-1.jpg") WHERE id = 8;
+UPDATE inspection_items SET images = JSON_ARRAY("/images/inspection/9.jpg", "/images/inspection/9-1.jpg") WHERE id = 9;
+UPDATE inspection_items SET images = JSON_ARRAY("/images/inspection/10.jpg", "/images/inspection/10-1.jpg") WHERE id = 10;
+UPDATE inspection_items SET images = JSON_ARRAY("/images/inspection/11.jpg", "/images/inspection/11-1.jpg") WHERE id = 11;
+UPDATE inspection_items SET images = JSON_ARRAY("/images/inspection/12.jpg", "/images/inspection/12-1.jpg") WHERE id = 12;
+UPDATE inspection_items SET images = JSON_ARRAY("/images/inspection/13.jpg", "/images/inspection/13-1.jpg") WHERE id = 13;
+UPDATE inspection_items SET images = JSON_ARRAY("/images/inspection/14.jpg", "/images/inspection/14-1.jpg") WHERE id = 14;
+UPDATE inspection_items SET images = JSON_ARRAY("/images/inspection/15.jpg", "/images/inspection/15-1.jpg") WHERE id = 15;
+UPDATE inspection_items SET images = JSON_ARRAY("/images/inspection/16.jpg", "/images/inspection/16-1.jpg") WHERE id = 16;
+UPDATE inspection_items SET images = JSON_ARRAY("/images/inspection/17.jpg", "/images/inspection/17-1.jpg") WHERE id = 17;
+UPDATE inspection_items SET images = JSON_ARRAY("/images/inspection/18.jpg", "/images/inspection/18-1.jpg") WHERE id = 18;
+UPDATE inspection_items SET images = JSON_ARRAY("/images/inspection/19.jpg", "/images/inspection/19-1.jpg") WHERE id = 19;
+UPDATE inspection_items SET images = JSON_ARRAY("/images/inspection/20.jpg", "/images/inspection/20-1.jpg") WHERE id = 20;
+
+
+
+
+
+
