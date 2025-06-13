@@ -1,7 +1,8 @@
 
 const express = require('express');
 const router = express.Router();
-const supabase = require('../supabase'); // supabase 클라이언트 경로에 맞게 조정
+const supabase = require('../supabaseClient');
+ // supabase 클라이언트 경로에 맞게 조정
 
 // 추천 정비소 전체 조회
 router.get('/', async (req, res) => {
