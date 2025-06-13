@@ -49,7 +49,7 @@ router.post('/', async (req, res) => {
     return res.status(500).json({ message: '추가 실패', error });
   }
 
-  if (type === '교환') {
+  if (type === '교체') {
     await updateParts(car_number, inspection_type, date, 'add');
   }
 
@@ -82,12 +82,12 @@ router.put('/:id', async (req, res) => {
     return res.status(500).json({ message: '수정 실패', error });
   }
 
-  // 교환 상태 변경에 따른 parts 업데이트
-  if (oldData.type === '교환' && type !== '교환') {
+  // 교체 상태 변경에 따른 parts 업데이트
+  if (oldData.type === '교체' && type !== '교체') {
     await updateParts(car_number, oldData.inspection_type, oldData.date, 'remove');
-  } else if (oldData.type !== '교환' && type === '교환') {
+  } else if (oldData.type !== '교체' && type === '교체') {
     await updateParts(car_number, inspection_type, date, 'add');
-  } else if (oldData.type === '교환' && type === '교환' &&
+  } else if (oldData.type === '교체' && type === '교체' &&
     (oldData.inspection_type !== inspection_type || oldData.date !== date)) {
     await updateParts(car_number, oldData.inspection_type, oldData.date, 'remove');
     await updateParts(car_number, inspection_type, date, 'add');
@@ -121,7 +121,7 @@ router.delete('/:id', async (req, res) => {
     return res.status(500).json({ message: '삭제 실패', error });
   }
 
-  if (deleted.type === '교환') {
+  if (deleted.type === '교체') {
     await updateParts(deleted.car_number, deleted.inspection_type, deleted.date, 'remove');
   }
 
@@ -136,15 +136,16 @@ async function updateParts(car_number, partName, replacedAt, action) {
     .eq('car_number', car_number)
     .single();
 
-  if (vErr) {
-    console.error('vehicle_info 조회 실패:', vErr.message);
+  if (vErr || !vehicle) {
+    console.error('❌ vehicle_info 조회 실패:', vErr?.message || '차량 정보 없음', car_number);
     return;
   }
 
-  let updatedParts = vehicle?.parts || [];
+  let updatedParts = Array.isArray(vehicle.parts) ? [...vehicle.parts] : [];
 
   if (action === 'add') {
-    updatedParts.push({ partName, replacedAt });
+    const exists = updatedParts.some(p => p.partName === partName && p.replacedAt === replacedAt);
+    if (!exists) updatedParts.push({ partName, replacedAt });
   } else if (action === 'remove') {
     updatedParts = updatedParts.filter(
       (p) => !(p.partName === partName && p.replacedAt === replacedAt)
@@ -156,7 +157,12 @@ async function updateParts(car_number, partName, replacedAt, action) {
     .update({ parts: updatedParts })
     .eq('car_number', car_number);
 
-  if (uErr) console.error('parts 업데이트 실패:', uErr.message);
+  if (uErr) {
+    console.error('❌ parts 업데이트 실패:', uErr.message);
+  } else {
+    console.log('✅ vehicle_info.parts 업데이트 성공:', updatedParts);
+  }
 }
+
 
 module.exports = router;
