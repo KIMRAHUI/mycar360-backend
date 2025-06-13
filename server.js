@@ -6,12 +6,13 @@ const cors = require('cors');
 const historyRoutes = require('./routes/history');
 const vehicleRouter = require('./routes/vehicle');
 const inspectionRoutes = require('./routes/inspection');
-const inspectionItemsRoutes = require('./routes/inspectionItems'); // ✅ 추가
+const inspectionItemsRoutes = require('./routes/inspectionItems');
 const favoriteRoutes = require('./routes/favorites');
 const nextInspectionRoutes = require('./routes/nextInspections');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const userByCarRoutes = require('./routes/userByCar');
+const recommendedShopsRoutes = require('./routes/recommendedShops'); 
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -41,10 +42,11 @@ app.use('/api/favorites', favoriteRoutes);
 app.use('/api/history', historyRoutes);
 app.use('/api/vehicle-info', vehicleRouter);
 app.use('/api/inspection', inspectionRoutes);
-app.use('/api/inspection-items', inspectionItemsRoutes); // ✅ 정확한 경로로 등록
+app.use('/api/inspection-items', inspectionItemsRoutes);
 app.use('/api/next-inspection', nextInspectionRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/user-by-car', userByCarRoutes);
+app.use('/api/recommended-shops', recommendedShopsRoutes); 
 
 // ✅ 기본 라우트
 app.get('/', (req, res) => {
