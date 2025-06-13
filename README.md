@@ -42,6 +42,12 @@ MyCar360은 차량 점검 초보자도 손쉽게 사용할 수 있는 차량 점
   → 해당 차량의 점검 이력을 분석하여, 주기 기반으로 다음 점검 시기 및 항목을 예측
 - 별도의 테이블 생성 없이 `inspection_items` + `inspection_history`를 조합하여 계산
 
+### 🌟 추천 정비소 제공 (2025-06 추가)
+- `/api/recommended-shops`  
+  → Supabase `recommended_shops` 테이블에서 추천 정비소 목록 반환
+- 좌측 슬라이딩 UI와 연동되는 JSON 포맷 제공  
+  (이미지, 주소, 전화번호, 평점, 태그 포함)
+
 ---
 
 ## 📂 디렉토리 구조
@@ -51,7 +57,8 @@ backend/
 ┃ ┣ auth.js # 사용자 인증 및 회원가입
 ┃ ┣ favorites.js # 찜 기능 관련 API
 ┃ ┣ history.js # 점검 이력 API
-┃ ┗ next-inspection.js # 다음 점검 예측 API
+┃ ┣ next-inspection.js # 다음 점검 예측 API
+┃ ┗ recommendedShops.js # 추천 정비소 API (신규)
 ┣ supabaseClient.js # Supabase 클라이언트 연결 모듈
 ┣ server.js # Express 서버 진입점
 ┣ mycar360.sql # 테이블 구조 및 초기 데이터 (Supabase용)
@@ -74,6 +81,7 @@ backend/
 | POST   | `/api/history`                 | 점검 이력 추가 |
 | DELETE | `/api/history/delete/:id`      | 점검 이력 삭제 |
 | GET    | `/api/next-inspection/:carNumber` | 다음 점검 항목/날짜 예측 |
+| GET    | `/api/recommended-shops`       | 추천 정비소 목록 조회 (이미지 포함) |
 
 ---
 
@@ -106,18 +114,15 @@ backend/
 
 | 항목 | 설명 |
 |------|------|
-| ✅ Supabase 구조 설계 | 사용자, 점검 항목, 찜, 이력 테이블 모두 직접 설계 및 데이터 구성 |
-| ✅ Express API 직접 구현 | 실제 동작하는 RESTful API 설계 경험 확보 |
-| ✅ 실제 데이터 분석 기반 예측 | 별도 테이블 없이 기존 이력/주기만으로 다음 점검 예측 |
+| ✅ Supabase 구조 설계 | 사용자, 점검 항목, 찜, 이력, 추천 정비소 테이블 모두 직접 설계 |
+| ✅ Express API 직접 구현 | 실제 동작하는 RESTful API 다수 구현 |
+| ✅ 실제 데이터 분석 기반 예측 | 기존 이력/주기만으로 다음 점검 예측 |
+| ✅ 지도 기반 추천 기능 | 추천 정비소 데이터 → Kakao Map 연동 및 좌측 슬라이드 UI 완성 |
 | ✅ 배포 경험 | Render 배포 및 CORS, 환경변수 처리 경험 |
 
 ---
 
 ## 🧾 데이터베이스 초기화 SQL
 
-- [`sqld/supabase.sql`](./sqld/supabase.sql): Supabase 전용 PostgreSQL 스키마, Supabase(PostgreSQL)에서 사용되는 테이블 및 초기 데이터 정의
+- [`sqld/supabase.sql`](./sqld/supabase.sql): Supabase 전용 PostgreSQL 스키마, Supabase에서 사용되는 테이블 및 초기 데이터 정의
 - [`sqld/mysql.sql`](./sqld/mysql.sql): 로컬 MySQL/MariaDB 전용 스키마
-
-
-
-
