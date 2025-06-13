@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const supabase = require('../supabaseClient');
 
-// 로그인한 사용자의 찜 목록 조회
+// ✅ 로그인한 사용자의 찜 목록 조회 (created_at 포함)
 router.get('/:userId', async (req, res) => {
   const { userId } = req.params;
 
@@ -12,7 +12,7 @@ router.get('/:userId', async (req, res) => {
 
   const { data: favorites, error: favError } = await supabase
     .from('favorites')
-    .select('inspection_item_id, created_at') // created_at도 같이 가져오기
+    .select('inspection_item_id, created_at')
     .eq('user_id', Number(userId));
 
   if (favError) {
@@ -20,7 +20,6 @@ router.get('/:userId', async (req, res) => {
     return res.status(500).json({ message: '찜 항목을 불러오는 데 실패했습니다.', error: favError });
   }
 
-  // 숫자 타입만 필터링
   const itemIds = favorites
     .map(f => f.inspection_item_id)
     .filter(id => typeof id === 'number' && !isNaN(id));
@@ -39,10 +38,19 @@ router.get('/:userId', async (req, res) => {
     return res.status(500).json({ message: '상세 항목을 불러오는 데 실패했습니다.', error: itemError });
   }
 
-  res.json(items);
+  // created_at 정보 병합하여 응답
+  const detailedFavorites = favorites.map(fav => {
+    const matched = items.find(item => item.id === fav.inspection_item_id);
+    return {
+      ...matched,
+      created_at: fav.created_at,
+    };
+  });
+
+  res.json(detailedFavorites);
 });
 
-// 찜 추가 (user_id, inspection_item_id 존재 여부 검증 포함)
+// ✅ 찜 추가
 router.post('/', async (req, res) => {
   const { user_id, inspection_item_id } = req.body;
 
@@ -50,7 +58,7 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ message: 'user_id 또는 inspection_item_id가 누락되었습니다.' });
   }
 
-  // user_id 존재 확인
+  // user_id 유효성 검사
   const { data: userExists, error: userError } = await supabase
     .from('users')
     .select('id')
@@ -61,7 +69,7 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ message: '유효하지 않은 user_id 입니다.', error: userError });
   }
 
-  // inspection_item_id 존재 확인
+  // inspection_item_id 유효성 검사
   const { data: itemExists, error: itemError } = await supabase
     .from('inspection_items')
     .select('id')
@@ -72,7 +80,7 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ message: '유효하지 않은 inspection_item_id 입니다.', error: itemError });
   }
 
-  // 중복 찜 확인
+  // 중복 확인
   const { data: existing, error: existError } = await supabase
     .from('favorites')
     .select('id')
@@ -88,7 +96,7 @@ router.post('/', async (req, res) => {
     return res.status(409).json({ message: '이미 찜한 항목입니다.' });
   }
 
-  // 찜 추가
+  // 삽입
   const { data, error } = await supabase
     .from('favorites')
     .insert([{ user_id: Number(user_id), inspection_item_id: Number(inspection_item_id) }])
@@ -100,6 +108,24 @@ router.post('/', async (req, res) => {
   }
 
   res.status(201).json(data[0]);
+});
+
+// ✅ 찜 삭제
+router.delete('/:userId/:itemId', async (req, res) => {
+  const { userId, itemId } = req.params;
+
+  const { error } = await supabase
+    .from('favorites')
+    .delete()
+    .eq('user_id', Number(userId))
+    .eq('inspection_item_id', Number(itemId));
+
+  if (error) {
+    console.error('찜 삭제 실패:', error.message);
+    return res.status(500).json({ message: '찜 삭제에 실패했습니다.', error });
+  }
+
+  res.status(200).json({ success: true });
 });
 
 module.exports = router;
