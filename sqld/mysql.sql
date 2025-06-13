@@ -4,17 +4,18 @@ DROP TABLE IF EXISTS favorites;
 DROP TABLE IF EXISTS inspection_items;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS vehicle_info;
+DROP TABLE IF EXISTS recommended_shops;
 
 -- 2. 차량 정보 테이블 생성
 CREATE TABLE vehicle_info (
   car_number VARCHAR(20) PRIMARY KEY,
-  type VARCHAR(100) NOT NULL,
-  year VARCHAR(10) NOT NULL,
+  type VARCHAR(100),
+  year VARCHAR(10),
   parts JSON,
   history JSON
 );
 
--- 3. 사용자 정보 테이블 생성 (자동 증가 bigint PK, 차량번호 1:1 매칭, vehicle_info 참조)
+-- 3. 사용자 정보 테이블 생성
 CREATE TABLE users (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   car_number VARCHAR(20) UNIQUE NOT NULL,
@@ -38,7 +39,8 @@ CREATE TABLE inspection_items (
   parts TEXT,
   cost_range TEXT,
   warning_light TEXT,
-  detail TEXT
+  detail TEXT,
+  images JSON
 );
 
 -- 5. 찜 테이블 생성
@@ -47,36 +49,54 @@ CREATE TABLE favorites (
   user_id BIGINT NOT NULL,
   inspection_item_id INT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE KEY unique_favorite (user_id, inspection_item_id),
+  UNIQUE(user_id, inspection_item_id),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (inspection_item_id) REFERENCES inspection_items(id) ON DELETE CASCADE
 );
 
 -- 6. 점검 이력 테이블 생성
 CREATE TABLE inspection_history (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id CHAR(36) PRIMARY KEY,
   car_number VARCHAR(20) NOT NULL,
   inspection_type TEXT NOT NULL,
-  shop_name VARCHAR(100),
+  shop_name TEXT,
   date DATE NOT NULL,
   note TEXT,
-  user_id BIGINT,
+  user_id TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (car_number) REFERENCES vehicle_info(car_number) ON DELETE CASCADE,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+  type ENUM('점검', '교체') NOT NULL
 );
+
+-- 7. 추천 정비소 테이블 생성
+CREATE TABLE recommended_shops (
+  id CHAR(36) PRIMARY KEY,
+  name TEXT NOT NULL,
+  address TEXT NOT NULL,
+  lat DOUBLE NOT NULL,
+  lng DOUBLE NOT NULL,
+  tags JSON,
+  description TEXT,
+  image_url TEXT,
+  rating DECIMAL(3,1),
+  phone TEXT
+);
+
 
 -- 7. 차량 정보 더미 데이터 삽입
 INSERT INTO vehicle_info (car_number, type, year, parts, history) VALUES
-('12가3456', 'Hyundai Elantra N', '2022',
-  JSON_ARRAY('배터리 교체 (2024.03)', '타이어 교체 (2023.09)'),
-  JSON_ARRAY('점검 (2024.01)', '오일 교환 (2023.08)')),
-('34나5678', 'Kia K5', '2020',
-  JSON_ARRAY('브레이크 패드 교체 (2023.10)', '냉각수 보충 (2023.07)'),
-  JSON_ARRAY('정기점검 (2023.12)', '하체 점검 (2023.11)')),
 ('12가2346', '현대 그랜저 IG', '2021',
-  JSON_ARRAY('배터리 교체 (2024.03)', '타이어 교체 (2023.11)'),
-  JSON_ARRAY('정기점검 (2024.01)', '엔진오일 교체 (2023.08)'));
+  '[{"partName": "배터리", "replacedAt": "2024-03"}, {"partName": "타이어", "replacedAt": "2023-11"}]',
+  '[{"label": "정기점검", "performedAt": "2024-01"}, {"label": "엔진오일", "performedAt": "2023-08"}]'
+),
+('12가3456', 'Hyundai Elantra N', '2022',
+  '[{"partName": "에어컨 필터 교체", "replacedAt": "2025-06-14"}, {"partName": "타이어 교체", "replacedAt": "2023-09-13"}, {"partName": "엔진오일 교체", "replacedAt": "2023-08-07"}]',
+  '[{"label": "배터리 점검", "performedAt": "2025-02-10"}]'
+),
+('34나5678', 'Kia K5', '2020',
+  '[{"partName": "브레이크패드", "replacedAt": "2023-10"}, {"partName": "냉각수 보충", "replacedAt": "2023-07"}]',
+  '[{"label": "정기점검", "performedAt": "2023-12"}, {"label": "하체 점검", "performedAt": "2023-11"}]'
+);
+
 
 -- 8. 점검 항목 데이터 삽입 (20개 예시)
 INSERT INTO inspection_items (title, category, description, image_url, recommended_cycle, parts, cost_range, warning_light, detail) VALUES
@@ -108,10 +128,12 @@ INSERT INTO users (car_number, nickname, telco, phone_number, address, verified)
 ('12가2346', '바람개비', 'LGU+', '01055556666', '서울시 송파구', TRUE);
 
 -- 10. 점검 이력 데이터 삽입
-INSERT INTO inspection_history (car_number, inspection_type, shop_name, date, note, user_id) VALUES
-('12가3456', '엔진오일 교체', '현대오토큐 강남점', '2024-12-15', '주행거리 8,000km 도달로 교체', 1),
-('12가3456', '배터리 점검', '카센터 강동점', '2025-01-10', '시동 지연 문제로 점검', 1),
-('12가3456', '타이어 교체', '타이어프로 삼성점', '2024-06-03', '앞바퀴 마모 확인 후 교체', 1);
+INSERT INTO inspection_history (id, car_number, inspection_type, shop_name, date, note, user_id, created_at, type) VALUES
+(1, '12가3456', '엔진오일 교체', '현대오토큐 강남점', '2023-08-07', '주행거리 8,000km 도달로 교체', 1, '2025-06-11 05:47:23', '교체'),
+(2, '12가3456', '배터리 점검', '카센터 강동점', '2025-02-10', '시동 지연 문제로 점검', 1, '2025-06-11 05:47:23', '점검'),
+(3, '12가3456', '타이어 교체', '타이어프로 삼성점', '2023-09-13', '앞바퀴 마모 확인 후 교체', 1, '2025-06-11 05:47:23', '교체'),
+(17, '12가3456', '에어컨 필터 교체', '블루핸즈 두산점', '2025-06-14', '여름맞이 필터교체', 1, '2025-06-13 15:54:42', '교체');
+
 
 -- 11. 찜 데이터 삽입
 INSERT INTO favorites (user_id, inspection_item_id) VALUES
