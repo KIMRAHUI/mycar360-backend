@@ -15,16 +15,19 @@ create table public.vehicle_info (
 );
 
 -- 3. 사용자 정보 테이블 생성 (자동 증가 bigint PK, 차량번호 1:1 매칭, vehicle_info 참조)
-CREATE TABLE users (
-  id BIGSERIAL PRIMARY KEY,
-  car_number VARCHAR(20) UNIQUE NOT NULL REFERENCES vehicle_info(car_number) ON DELETE CASCADE,
-  nickname VARCHAR(50) NOT NULL,
-  telco VARCHAR(10),
-  phone_number VARCHAR(20),
-  address TEXT,
-  verified BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP DEFAULT NOW()
+-- public.users 테이블 생성
+create table if not exists public.users (
+  id bigint primary key,
+  car_number text not null,
+  nickname text,
+  telco text,
+  phone_number text,
+  address text,
+  verified boolean default false,
+  created_at timestamp with time zone default now(),
+  my_vehicle text
 );
+
 
 -- 4. 점검 항목 테이블 생성
 CREATE TABLE inspection_items (
@@ -102,10 +105,13 @@ INSERT INTO inspection_items (title, category, description, image_url, recommend
 ('타이어 위치 교환', '장거리점검', '편마모 방지 및 수명 연장', '', '10,000~15,000km', '타이어', '0~5만원', NULL, '주기적으로 앞뒤 위치 교체');
 
 -- 9. 사용자 데이터 삽입
-INSERT INTO users (car_number, nickname, telco, phone_number, address, verified) VALUES
-('12가3456', '포카칩', 'SKT', '01012345678', '서울시 강남구', TRUE),
-('34나5678', '달콤이', 'KT', '01087654321', '서울시 서초구', FALSE),
-('12가2346', '바람개비', 'LGU+', '01055556666', '서울시 송파구', TRUE);
+insert into public.users (
+  id, car_number, nickname, telco, phone_number, address, verified, created_at, my_vehicle
+) values
+  (1, '12가3456', '포카칩', 'SKT', '01012345678', '서울시 강남구', true, '2025-06-11 05:47:23.780156+09', 'Hyundai Elantra N'),
+  (2, '34나5678', '달콤이', 'KT', '01087654321', '서울시 서초구', false, '2025-06-11 05:47:23.780156+09', 'Kia K5'),
+  (3, '12가2346', '바람개비', 'LGU+', '01055556666', '서울시 송파구', true, '2025-06-11 05:47:23.780156+09', '현대 그랜저 IG');
+
 
 -- 10. 점검 이력 데이터 삽입
 INSERT INTO "public"."inspection_history"
