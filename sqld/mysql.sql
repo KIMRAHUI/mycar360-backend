@@ -144,6 +144,34 @@ UPDATE inspection_items SET images = JSON_ARRAY("/images/inspection/19.jpg", "/i
 UPDATE inspection_items SET images = JSON_ARRAY("/images/inspection/20.jpg", "/images/inspection/20-1.jpg") WHERE id = 20;
 
 
+-- ✅ 1. 추천 정비소 테이블 생성
+CREATE TABLE IF NOT EXISTS recommended_shops (
+  id UUID PRIMARY KEY,
+  name TEXT NOT NULL,
+  address TEXT NOT NULL,
+  lat DOUBLE PRECISION NOT NULL,
+  lng DOUBLE PRECISION NOT NULL,
+  tags JSON,
+  description TEXT,
+  image_url TEXT,
+  rating NUMERIC(2,1),
+  phone TEXT
+);
+
+-- ✅ 2. 추천 정비소 데이터 삽입
+INSERT INTO "public"."recommended_shops" (
+  "id", "name", "address", "lat", "lng", "tags", "description", "image_url", "rating", "phone"
+) VALUES
+('91d981ab-42ee-4b33-b379-116d14579e32', '불스원 강남점', '서울 강남구 테헤란로 123', 37.501274, 127.039585, '["합리적 가격", "친절 서비스"]', '불스원 강남 공식 지정점', '/images/shops/bullsone_gangnam.jpg', 4.7, '02-123-4567'),
+('6f3f1de7-dc0d-4c64-9ba3-d38048be80ff', '현대오토큐 백록점', '서울 중구 퇴계로 123', 37.560432, 126.994927, '["정품 부품", "빠른 수리"]', '현대자동차 공식 서비스', '/images/shops/hyundai_autoq.jpg', 4.5, '02-234-5678'),
+('23cda547-ff32-4652-bd62-926ce11dc2b9', '스피드메이트 백록', '서울 용산구 한강대로 50', 37.529582, 126.967907, '["예약 가능", "신속 점검"]', '스피드메이트 용산 직영점', '/images/shops/speedmate_baeknok.jpg', 4.6, '02-345-6789'),
+('ef1395c7-f6df-4d55-9d6e-2bfa4a3ed3f0', '카닥 서비스 강동', '서울 강동구 천호대로 100', 37.538414, 127.123032, '["친절 응대", "청결한 시설"]', '카닥 공식 지정 정비소', '/images/shops/cardoc_gangdong.jpg', 4.4, '02-456-7890'),
+('9bb0e38a-239b-4e61-a62b-00a733ae41e3', '에이원카센터 강서', '서울 강서구 화곡로 30', 37.541278, 126.840674, '["합리적 가격", "보증 수리"]', '지역 주민 추천 1위 정비소', '/images/shops/aonecarcenter.jpg', 4.6, '02-567-8901'),
+('fbc3ed5c-5e4b-4b9e-88dc-8d8bc254fc85', '탑카센터 도봉', '서울 도봉구 도봉로 10', 37.664377, 127.032726, '["전문 기술자", "장기 고객"]', '도봉 대표 자동차 수리 전문점', '/images/shops/topcar_dobong.jpg', 4.5, '02-678-9012'),
+('a1d3d830-6792-4c6c-b28d-587b5797e9ab', '카맨샵 노원', '서울 노원구 동일로 120', 37.654210, 127.056657, '["합리적 가격", "예약 가능"]', '카맨샵 노원 지점', '/images/shops/carmanshop_nowon.jpg', 4.4, '02-789-0123'),
+('7efb89ec-5c10-47ef-a30c-4c74973e1a33', '오토플러스 송파', '서울 송파구 백제고분로 200', 37.506865, 127.106728, '["정직 정비", "보증 수리"]', '자동차 리뷰 앱 1위', '/images/shops/autoplus_songpa.jpg', 4.8, '02-890-1234'),
+('9a34b7d3-cb6e-4e9e-82a5-3964ae4c47b9', '타이어뱅크 강서', '서울 강서구 공항대로 50', 37.561231, 126.849732, '["정품 타이어", "빠른 장착"]', '타이어전문 정비소', '/images/shops/tirebank_gangseo.jpg', 4.3, '02-901-2345'),
+('0de63e20-ef67-41d4-9c93-7431420e8b37', '보쉬카서비스 광진', '서울 광진구 능동로 90', 37.549611, 127.074065, '["국제 인증", "고급 진단기기"]', '보쉬 공식 정비소', '/images/shops/boschservice_gwangjin.jpg', 4.6, '02-1234-5678');
 
 
 
