@@ -16,14 +16,39 @@ router.get('/:id', async (req, res) => {
       .eq('id', Number(id)) // 숫자형으로 비교
       .single(); // 단일 객체로 반환 (없으면 error 발생)
 
-    // 에러 발생 시 예외 처리
     if (error) throw error;
 
-    // 성공 시 주소 응답
     res.json({ address: data.address });
   } catch (err) {
     console.error('❌ 사용자 주소 조회 실패:', err);
     res.status(500).json({ error: '주소 조회 실패' });
+  }
+});
+
+// ✅ POST /api/users/:id/nickname
+// 사용자의 닉네임(nickname)을 수정하는 라우트
+router.post('/:id/nickname', async (req, res) => {
+  const { id } = req.params;
+  const { nickname } = req.body;
+
+  if (!nickname || typeof nickname !== 'string') {
+    return res.status(400).json({ error: '유효한 닉네임을 전달해주세요.' });
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .update({ nickname })
+      .eq('id', Number(id))
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({ success: true, updatedNickname: data.nickname });
+  } catch (err) {
+    console.error('❌ 닉네임 업데이트 실패:', err);
+    res.status(500).json({ error: '닉네임 업데이트 실패' });
   }
 });
 

@@ -51,6 +51,8 @@ router.post('/', async (req, res) => {
 
   if (type === '교체') {
     await updateParts(car_number, inspection_type, date, 'add');
+  } else if (type === '점검') {
+    await updateHistory(car_number, inspection_type, date, 'add');
   }
 
   res.status(201).json(data[0]);
@@ -82,7 +84,6 @@ router.put('/:id', async (req, res) => {
     return res.status(500).json({ message: '수정 실패', error });
   }
 
-  // 교체 상태 변경에 따른 parts 업데이트
   if (oldData.type === '교체' && type !== '교체') {
     await updateParts(car_number, oldData.inspection_type, oldData.date, 'remove');
   } else if (oldData.type !== '교체' && type === '교체') {
@@ -91,6 +92,16 @@ router.put('/:id', async (req, res) => {
     (oldData.inspection_type !== inspection_type || oldData.date !== date)) {
     await updateParts(car_number, oldData.inspection_type, oldData.date, 'remove');
     await updateParts(car_number, inspection_type, date, 'add');
+  }
+
+  if (oldData.type === '점검' && type !== '점검') {
+    await updateHistory(car_number, oldData.inspection_type, oldData.date, 'remove');
+  } else if (oldData.type !== '점검' && type === '점검') {
+    await updateHistory(car_number, inspection_type, date, 'add');
+  } else if (oldData.type === '점검' && type === '점검' &&
+    (oldData.inspection_type !== inspection_type || oldData.date !== date)) {
+    await updateHistory(car_number, oldData.inspection_type, oldData.date, 'remove');
+    await updateHistory(car_number, inspection_type, date, 'add');
   }
 
   res.sendStatus(204);
@@ -123,12 +134,14 @@ router.delete('/:id', async (req, res) => {
 
   if (deleted.type === '교체') {
     await updateParts(deleted.car_number, deleted.inspection_type, deleted.date, 'remove');
+  } else if (deleted.type === '점검') {
+    await updateHistory(deleted.car_number, deleted.inspection_type, deleted.date, 'remove');
   }
 
   res.sendStatus(204);
 });
 
-// vehicle_info.parts 업데이트 함수
+// parts 업데이트 함수
 async function updateParts(car_number, partName, replacedAt, action) {
   const { data: vehicle, error: vErr } = await supabase
     .from('vehicle_info')
@@ -164,5 +177,40 @@ async function updateParts(car_number, partName, replacedAt, action) {
   }
 }
 
+// history 업데이트 함수
+async function updateHistory(car_number, label, performedAt, action) {
+  const { data: vehicle, error: vErr } = await supabase
+    .from('vehicle_info')
+    .select('history')
+    .eq('car_number', car_number)
+    .single();
+
+  if (vErr || !vehicle) {
+    console.error('❌ vehicle_info 조회 실패:', vErr?.message || '차량 정보 없음', car_number);
+    return;
+  }
+
+  let updatedHistory = Array.isArray(vehicle.history) ? [...vehicle.history] : [];
+
+  if (action === 'add') {
+    const exists = updatedHistory.some(h => h.label === label && h.performedAt === performedAt);
+    if (!exists) updatedHistory.push({ label, performedAt });
+  } else if (action === 'remove') {
+    updatedHistory = updatedHistory.filter(
+      (h) => !(h.label === label && h.performedAt === performedAt)
+    );
+  }
+
+  const { error: uErr } = await supabase
+    .from('vehicle_info')
+    .update({ history: updatedHistory })
+    .eq('car_number', car_number);
+
+  if (uErr) {
+    console.error('❌ history 업데이트 실패:', uErr.message);
+  } else {
+    console.log('✅ vehicle_info.history 업데이트 성공:', updatedHistory);
+  }
+}
 
 module.exports = router;
