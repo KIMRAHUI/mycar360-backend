@@ -13,6 +13,7 @@ router.get('/test', (req, res) => {
 
 const authCodes = new Map();
 
+// ✅ 인증번호 발송
 router.post('/signup', async (req, res) => {
   const { phone_number } = req.body;
   console.log('[POST /signup] 요청 본문:', req.body);
@@ -33,6 +34,7 @@ router.post('/signup', async (req, res) => {
   res.json({ message: '인증번호가 발송되었습니다. (개발용)', code });
 });
 
+// ✅ 회원가입 인증번호 검증 및 등록
 router.post('/verify', async (req, res) => {
   const {
     phone_number,
@@ -41,7 +43,7 @@ router.post('/verify', async (req, res) => {
     car_number,
     address,
     telco,
-    vehicle_type, // ✅ 추가
+    vehicle_type,
   } = req.body;
 
   console.log('[POST /verify] 요청 본문:', req.body);
@@ -71,68 +73,64 @@ router.post('/verify', async (req, res) => {
       return res.status(500).json({ message: 'DB 조회 오류', error });
     }
 
-    let user = users.length > 0 ? users[0] : null;
+    if (users.length > 0) {
+      console.log('❌ 이미 등록된 사용자');
+      return res.status(400).json({ message: '이미 가입된 사용자입니다. 로그인해주세요.' });
+    }
 
-    if (!user) {
-      if (!car_number || !nickname) {
-        return res.status(400).json({ message: '차량번호와 닉네임이 필요합니다.' });
-      }
+    if (!car_number || !nickname) {
+      return res.status(400).json({ message: '차량번호와 닉네임이 필요합니다.' });
+    }
 
-      const { data: vehicleExists, error: vehicleCheckErr } = await supabase
+    const { data: vehicleExists, error: vehicleCheckErr } = await supabase
+      .from('vehicle_info')
+      .select('*')
+      .eq('car_number', car_number);
+
+    if (vehicleCheckErr) {
+      return res.status(500).json({ message: '차량 정보 확인 실패', error: vehicleCheckErr });
+    }
+
+    if (!vehicleExists || vehicleExists.length === 0) {
+      const { error: insertVehicleErr } = await supabase
         .from('vehicle_info')
-        .select('*')
-        .eq('car_number', car_number);
-
-      if (vehicleCheckErr) {
-        return res.status(500).json({ message: '차량 정보 확인 실패', error: vehicleCheckErr });
-      }
-
-      if (!vehicleExists || vehicleExists.length === 0) {
-        const { error: insertVehicleErr } = await supabase
-          .from('vehicle_info')
-          .insert([
-            {
-              car_number,
-              type: vehicle_type || '미등록 차량',
-              year: '2025',
-              parts: '[]',
-              history: '[]',
-            },
-          ]);
-        if (insertVehicleErr) {
-          return res.status(500).json({ message: '차량 정보 등록 실패', error: insertVehicleErr });
-        }
-        console.log(`🆕 차량 정보 등록 완료: ${car_number}`);
-      }
-
-      console.log('📦 사용자 등록 시도 중:');
-      console.log({ car_number, nickname, phone_number, address, telco, vehicle_type });
-
-      const { data, error: insertErr } = await supabase
-        .from('users')
         .insert([
           {
             car_number,
-            nickname,
-            phone_number,
-            address,
-            telco,
-            vehicle_type, // ✅ Supabase에 저장
-            verified: true,
+            type: vehicle_type || '미등록 차량',
+            year: '2025',
+            parts: '[]',
+            history: '[]',
           },
-        ])
-        .select();
-
-      if (insertErr) {
-        console.error('❌ 사용자 등록 실패:', insertErr);
-        return res.status(500).json({ message: '회원가입 실패', error: insertErr });
+        ]);
+      if (insertVehicleErr) {
+        return res.status(500).json({ message: '차량 정보 등록 실패', error: insertVehicleErr });
       }
-
-      user = data[0];
-      console.log('🆕 신규 사용자 등록 성공:', user);
-    } else {
-      console.log('👤 기존 사용자 로그인:', user);
+      console.log(`🆕 차량 정보 등록 완료: ${car_number}`);
     }
+
+    const { data, error: insertErr } = await supabase
+      .from('users')
+      .insert([
+        {
+          car_number,
+          nickname,
+          phone_number,
+          address,
+          telco,
+          vehicle_type,
+          verified: true,
+        },
+      ])
+      .select();
+
+    if (insertErr) {
+      console.error('❌ 사용자 등록 실패:', insertErr);
+      return res.status(500).json({ message: '회원가입 실패', error: insertErr });
+    }
+
+    const user = data[0];
+    console.log('🆕 신규 사용자 등록 성공:', user);
 
     const token = jwt.sign(
       {
@@ -153,6 +151,45 @@ router.post('/verify', async (req, res) => {
   }
 });
 
+// ✅ 로그인 라우트 추가
+router.post('/login', async (req, res) => {
+  const { phone_number } = req.body;
+
+  if (!phone_number) {
+    return res.status(400).json({ message: '핸드폰 번호가 필요합니다.' });
+  }
+
+  try {
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('phone_number', phone_number)
+      .single();
+
+    if (error || !user) {
+      return res.status(404).json({ message: '존재하지 않는 사용자입니다. 회원가입을 먼저 진행해주세요.' });
+    }
+
+    const token = jwt.sign(
+      {
+        id: user.id,
+        nickname: user.nickname,
+        car_number: user.car_number,
+        phone_number: user.phone_number,
+      },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    console.log('🔐 로그인 성공, 토큰 발급 완료');
+    res.json({ token, user });
+  } catch (err) {
+    console.error('[POST /login] 오류:', err);
+    res.status(500).json({ message: '로그인 처리 중 오류 발생', error: err.message });
+  }
+});
+
+// ✅ 프로필 조회
 router.get('/profile', async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -186,6 +223,7 @@ router.get('/profile', async (req, res) => {
   }
 });
 
+// ✅ 차량번호로 사용자 조회
 router.get('/user-by-car/:carNumber', async (req, res) => {
   const { carNumber } = req.params;
 
