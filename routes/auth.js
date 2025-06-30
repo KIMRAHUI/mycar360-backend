@@ -118,18 +118,17 @@ router.post('/verify', async (req, res) => {
 
     const { data, error: insertErr } = await supabase
       .from('users')
-      .insert([
-        {
-          car_number,
-          nickname,
-          phone_number,
-          address,
-          telco,
-          vehicle_type,
-          verified: true,
-        },
-      ])
+      .insert([{
+        car_number,
+        nickname,
+        phone_number,
+        address,
+        telco,
+        my_vehicle: vehicle_type, 
+        verified: true,
+      }])
       .select();
+
 
     if (insertErr) {
       console.error('❌ 사용자 등록 실패:', insertErr);
