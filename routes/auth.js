@@ -136,6 +136,7 @@ router.post('/verify', async (req, res) => {
       return res.status(500).json({ message: '회원가입 실패', error: insertErr });
     }
 
+
     const user = data[0];
     console.log('🆕 신규 사용자 등록 성공:', user);
 
