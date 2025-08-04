@@ -32,6 +32,31 @@ router.get('/:carNumber', async (req, res) => {
       console.warn('⚠️ JSON 파싱 실패 또는 이미 객체입니다:', err.message);
     }
 
+    // ✅ 문자열로 되어 있는 parts/history 항목을 객체 배열로 변환
+    data.parts = Array.isArray(data.parts)
+      ? data.parts.map(item => {
+          if (typeof item === 'string') {
+            const match = item.match(/^(.+?)\s*\((.+?)\)$/);
+            return match
+              ? { partName: match[1].trim(), replacedAt: match[2].trim() }
+              : { partName: '알 수 없음', replacedAt: '날짜 없음' };
+          }
+          return item; // 이미 객체일 경우 그대로
+        })
+      : [];
+
+    data.history = Array.isArray(data.history)
+      ? data.history.map(item => {
+          if (typeof item === 'string') {
+            const match = item.match(/^(.+?)\s*\((.+?)\)$/);
+            return match
+              ? { label: match[1].trim(), performedAt: match[2].trim() }
+              : { label: '알 수 없음', performedAt: '날짜 없음' };
+          }
+          return item;
+        })
+      : [];
+
     console.log('✅ 차량 정보 조회 결과:', data);
     res.json(data);
   } catch (err) {
