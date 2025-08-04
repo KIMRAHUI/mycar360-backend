@@ -124,17 +124,20 @@ router.post('/verify', async (req, res) => {
         phone_number,
         address,
         telco,
-        my_vehicle: vehicle_type, 
+        my_vehicle: vehicle_type,
         verified: true,
       }])
       .select();
-
 
     if (insertErr) {
       console.error('❌ 사용자 등록 실패:', insertErr);
       return res.status(500).json({ message: '회원가입 실패', error: insertErr });
     }
 
+    if (!data || !data[0]) {
+      console.error('❌ 등록 직후 사용자 정보 없음:', data);
+      return res.status(500).json({ message: '사용자 등록 후 조회 실패' });
+    }
 
     const user = data[0];
     console.log('🆕 신규 사용자 등록 성공:', user);
@@ -154,7 +157,11 @@ router.post('/verify', async (req, res) => {
     res.json({ token, user });
   } catch (err) {
     console.error('[POST /verify] 내부 오류 발생:', err);
-    res.status(500).json({ message: '서버 내부 오류', error: err.message });
+    res.status(500).json({
+      message: '서버 내부 오류',
+      error: err.message,
+      stack: err.stack,
+    });
   }
 });
 
@@ -194,7 +201,11 @@ router.post('/login', async (req, res) => {
     res.json({ token, user });
   } catch (err) {
     console.error('[POST /login] 내부 오류 발생:', err);
-    res.status(500).json({ message: '로그인 처리 중 오류 발생', error: err.message });
+    res.status(500).json({
+      message: '로그인 처리 중 오류 발생',
+      error: err.message,
+      stack: err.stack,
+    });
   }
 });
 
