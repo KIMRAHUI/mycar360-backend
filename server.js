@@ -17,49 +17,28 @@ const recommendedShopsRoutes = require('./routes/recommendedShops');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-/**
- *  허용 Origin 구성
- * - 기본값: 로컬(5173), 프로덕션 Vercel
- * - ENV 추가: CORS_ORIGINS="https://a.com,https://b.com"
- * - Vercel 프리뷰 *.vercel.app 자동 허용
- */
-const ENV_ORIGINS = (process.env.CORS_ORIGINS || '')
-  .split(',')
-  .map(s => s.trim())
-  .filter(Boolean);
-
-const staticAllowed = [
-  'http://localhost:5173',                // Vite 기본 포트(프론트)
-  'https://mycar360-frontend.vercel.app', // 프로덕션 프론트
+//  허용 Origin 목록 (정확 일치만)
+const allowedOrigins = [
+  'http://localhost:5173',                 // ← 로컬 프론트 (Vite 기본 포트)
+  'https://mycar360-frontend.vercel.app'   // ← 프로덕션 프론트
 ];
 
-const allowedOrigins = [...new Set([...staticAllowed, ...ENV_ORIGINS])];
-
-const isAllowedOrigin = (origin) => {
-  if (!origin) return true; // Postman/curl 등은 origin 없음
-  try {
-    const url = new URL(origin);
-    const host = url.host;
-
-    // 1) 정확 일치
-    if (allowedOrigins.includes(origin)) return true;
-
-    // 2) Vercel 프리뷰 도메인 허용 (필요 시 프로젝트 prefix로 더 제한 가능)
-    if (host.endsWith('.vercel.app')) return true;
-
-    return false;
-  } catch {
-    return false;
-  }
-};
-
-//  CORS 설정
+//  CORS 설정 (프리뷰 *.vercel.app 도 허용)
 app.use(cors({
-  origin: (origin, callback) => {
-    if (isAllowedOrigin(origin)) callback(null, true);
-    else callback(new Error('CORS 차단: ' + origin));
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // Postman/curl 등
+
+    try {
+      const host = new URL(origin).host;
+      if (allowedOrigins.includes(origin) || host.endsWith('.vercel.app')) {
+        return callback(null, true);
+      }
+    } catch (_) {
+      // URL 파싱 실패 시 아래에서 차단 처리
+    }
+    return callback(new Error('CORS 차단: ' + origin));
   },
-  credentials: true,
+  credentials: true
 }));
 
 //  Preflight(OPTIONS) 처리
@@ -79,7 +58,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/user-by-car', userByCarRoutes);
 app.use('/api/recommended-shops', recommendedShopsRoutes);
 
-//  기본 라우트
+// 기본 라우트
 app.get('/', (req, res) => {
   res.send('🚀 MyCar360 백엔드 서버가 정상 작동 중입니다!');
 });
